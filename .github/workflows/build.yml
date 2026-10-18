@@ -7,6 +7,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Arrange files
+        run: |
+          mkdir -p app/src/main/java/ru/family/prices app/src/main/assets app/src/main/res/mipmap-xxxhdpi
+          [ -f MainActivity.java ] && mv MainActivity.java app/src/main/java/ru/family/prices/
+          [ -f AndroidManifest.xml ] && mv AndroidManifest.xml app/src/main/
+          [ -f index.html ] && mv index.html app/src/main/assets/
+          [ -f ic_launcher.png ] && mv ic_launcher.png app/src/main/res/mipmap-xxxhdpi/
+          for f in build.gradle "build (1).gradle"; do
+            if [ -f "$f" ]; then
+              if grep -q "apply false" "$f"; then cp "$f" root.gradle; else cp "$f" app/build.gradle; fi
+            fi
+          done
+          cp root.gradle build.gradle
+          rm -f "build (1).gradle"
+          ls -R app
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
